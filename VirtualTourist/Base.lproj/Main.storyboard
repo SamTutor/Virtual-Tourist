@@ -68,7 +68,31 @@
                     </connections>
                 </pongPressGestureRecognizer>
             </objects>
-            <point key="canvasLocation" x="1117" y="418"/>
+            <point key="canvasLocation" x="25" y="430"/>
+        </scene>
+        <!--VTDetailsViewController-->
+        <scene sceneID="y7W-Jk-xwu">
+            <objects>
+                <viewController storyboardIdentifier="VTDetailsViewController" title="VTDetailsViewController" id="Ccm-tW-6bk" customClass="VTDetailsViewController" customModule="VirtualTourist" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="NeW-tf-jLg"/>
+                        <viewControllerLayoutGuide type="bottom" id="qDW-W3-7AV"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="8b5-1a-E7k">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="k1e-1g-EaV">
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="203"/>
+                            </mapView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                    <navigationItem key="navigationItem" title="Details" id="ub1-Tw-l45"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="klm-Te-vJc" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1719" y="435"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="7cG-x9-tzo">
@@ -86,7 +110,25 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="taX-bJ-PXO" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="305" y="418"/>
+            <point key="canvasLocation" x="-787" y="430"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="AsS-Lt-GLC">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="E09-yZ-4aF" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="A7d-he-WIf">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="Ccm-tW-6bk" kind="relationship" relationship="rootViewController" id="psM-yp-efu"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Ua4-ru-iHY" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="907" y="435"/>
         </scene>
     </scenes>
     <resources>
