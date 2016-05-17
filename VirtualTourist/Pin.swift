@@ -47,7 +47,4 @@ class Pin: NSManagedObject, MKAnnotation {
     }
 
     
-
-
-    
 }//END OF CLASS: Pin

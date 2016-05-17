@@ -27,9 +27,14 @@ class VTMapViewController: UIViewController, MKMapViewDelegate, UIGestureRecogni
     var mapMode = "Add"
     var latDelta = 0
 
+    
+    
+    // MARK: CORE DATA ShareContext
+    
     lazy var sharedContext: NSManagedObjectContext = {
         return CoreDataStackManager.sharedInstance().managedObjectContext
     }()
+    
     
     
     // MARK: View Loading
@@ -37,43 +42,34 @@ class VTMapViewController: UIViewController, MKMapViewDelegate, UIGestureRecogni
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        //Loads the Map Region
+        // Loads the Map Region
         loadMapRegion()
         
-        //Load the Map Pins
+        // Loads the Map Pins
         if let pins = loadPins() {
             addloadedPins(pins)
         }
         
-        //Default the Instrutions to Add Pins on the map
+        // Default the Instrutions to Add Pins on the map
         mapInstructions.text = addPinsMessage
         mapInstructions.backgroundColor = UIColor.darkGrayColor()
         
-
-        
-        //Long Press to Add Pins
+        // Long Press to Add Pins
         let longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(VTMapViewController.addPins(_:)))
         longPressRecognizer.minimumPressDuration = 0.5
         mapView.addGestureRecognizer(longPressRecognizer)
         
-        //Handles the mapView through delegate callbacks
+        // Handles the mapView through delegate callbacks
         mapView.delegate = self
-    
     
     }//END OF FUNC: viewDidLoad
     
 
     
-    //MARK: Core Data
-    
-    /**
-     * This is the convenience method for fetching all persistent pins
-     *
-     * The method creates a "Fetch Request" and then executes the request on
-     * the shared context.
-     */
+    //MARK: CORE DATA: Fetch Pins
     
     func loadPins() -> [Pin]? {
+    
         // Create the Fetch Request
         let fetchRequest = NSFetchRequest(entityName: "Pin")
         var savedPins = [Pin]()
@@ -91,18 +87,14 @@ class VTMapViewController: UIViewController, MKMapViewDelegate, UIGestureRecogni
 
     
     func addloadedPins(pins: [Pin]) -> Void {
-        
+
+        // Add Pins to the map
         for pin in pins {
-            
             let pinToMap = MKPointAnnotation()
             pinToMap.coordinate = pin.coordinate
-            
-            //let pinToMapView = MKPinAnnotationView(annotation: pinToMap, reuseIdentifier: nil)
-            //pinToMapView.animatedDrop = true
-            //pinToMapView.draggable = true
-            
             performOnMain {self.mapView.addAnnotation(pinToMap)}
         }
+        
     }//END OF FUNC: addloadedPins
     
     
@@ -110,13 +102,15 @@ class VTMapViewController: UIViewController, MKMapViewDelegate, UIGestureRecogni
     // MARK: MAP FILE
     
     var filePath : String {
-        //convenience property to return the file path for where the map location is stored
+        
+        // convenience property to return the file path for where the map location is stored
         let manager = NSFileManager.defaultManager()
         let url = manager.URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask).first! as NSURL
         return url.URLByAppendingPathComponent("mapRegion").path!
     
     }//END OF VAR: filePath
     
+   
     
     // MARK: MAP Region
    
@@ -143,8 +137,6 @@ class VTMapViewController: UIViewController, MKMapViewDelegate, UIGestureRecogni
         
     }//End OF FUNC: mapRegion
     
-    
-    
     func saveMapRegion() {
         
         // dictionary of the mapView Region
@@ -162,102 +154,69 @@ class VTMapViewController: UIViewController, MKMapViewDelegate, UIGestureRecogni
     
     
     
-    
-    
     // MARK: Mapview
-    
-    //Return the matching Pin managed object for the annotation
-    func pinForAnnotation(annotation: MKAnnotation) -> Pin? {
-        
-        var returnPin: Pin?
-        let pins = loadPins()       //Load the pins from the fetched results controller
-        for pinA in pins! {
-            let pinLat = pinA.valueForKey("pinLatitude") as! Double
-            let pinLong = pinA.valueForKey("pinLongitude") as! Double
-            if (pinLat == annotation.coordinate.latitude && pinLong == annotation.coordinate.longitude )
-            {
-                returnPin = pinA
-                break
-            }
-        }
-        
-        return returnPin
-    }//END OF FUNC: pinForAnnotation
-
     
     func mapView(mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
         saveMapRegion()
+    
     }//END OF FUNC: mapView regionDidChangeAnimated
     
-    
-    //Tells the delegate that one of its annotation views was selected.
+    // Tells the delegate that one of its annotation views was selected.
     func mapView(mapView: MKMapView, didSelectAnnotationView view: MKAnnotationView) {
-        let selAnn = view.annotation
-        if let selectedPin = pinForAnnotation(selAnn!) {
-            if (self.mapMode == "Add") {
-                //Go to VTDetailsViewController
+    
+        if (self.mapMode == "Add") {
+                let selpin = view.annotation as! Pin
+            
+                // Go to VTDetailsViewController
                 let controller = storyboard!.instantiateViewControllerWithIdentifier("VTDetailsViewController") as! VTDetailsViewController
-                controller.pinPhotos = selectedPin
-            
-            
-                // allows consecutive annotation selections
-                mapView.deselectAnnotation(selectedPin, animated: true)
-            
+    
+                mapView.deselectAnnotation(selpin, animated: true)
+
                 self.navigationController?.pushViewController(controller, animated: true)
             
             } else {
-                print("Delete")
-                mapView.removeAnnotation(view.annotation!)
+                let delpin = view.annotation as! Pin
             
-                /* Save the context */
-                CoreDataStackManager.sharedInstance().saveContext()
-
+                sharedContext.deleteObject(delpin)
+                mapView.removeAnnotation(delpin)
+            
+                performOnMain {
+                    CoreDataStackManager.sharedInstance().saveContext()
             }
         }
+        
     }//END OF FUNC: mapView didSelectAnnotationView
     
     
     
     // MARK: Actions
     
-    
     func addPins(sender: UIGestureRecognizer) {
+    
         if (self.mapMode == "Add") {
-            
-            if sender.state != UIGestureRecognizerState.Began {
-                return
-            }
-            
             let pinPoint:CGPoint = sender.locationInView(mapView)
-            print (pinPoint)
             
             let pinCoord : CLLocationCoordinate2D = mapView.convertPoint(pinPoint, toCoordinateFromView: mapView)
-            print (pinCoord)
             
-            let dropPin = MKPointAnnotation()
-            dropPin.coordinate = pinCoord
-            
-            performOnMain {
-                self.mapView.addAnnotation(dropPin)
+            if UIGestureRecognizerState.Began == sender.state {
+                performOnMain {
+                let pin = Pin(lat: pinCoord.latitude, long: pinCoord.longitude, context: self.sharedContext)
+                    self.mapView.addAnnotation(pin)
+                    CoreDataStackManager.sharedInstance().saveContext()
+                }
             }
-            
-            let pinToPhoto = Pin(lat: pinCoord.latitude, long: pinCoord.longitude, context: self.sharedContext)
-
-            performOnMain {
-                CoreDataStackManager.sharedInstance().saveContext()
-            }
-            
         }
         
     }//END OF FUNC: addPins
 
-    
     @IBAction func delPins(sender: UIBarButtonItem) {
+    
         if (mapNavigationBar.rightBarButtonItem?.image == UIImage(named: "Delete")) {
             self.mapMode = "Delete"
             mapInstructions.text = deletePinsMessage
             mapInstructions.backgroundColor = UIColor.orangeColor()
             mapNavigationBar.rightBarButtonItem?.image = UIImage(named:"Done")
+        
         } else {
             self.mapMode = "Add"
             mapInstructions.text = addPinsMessage
@@ -266,14 +225,6 @@ class VTMapViewController: UIViewController, MKMapViewDelegate, UIGestureRecogni
         }
         
     }//END OF FUNC: delPins
-    
-
-    // MARK: NSCoding
-    
-    
-    
-    
-
     
 }// END OF CLASS: VTMapViewController
 
