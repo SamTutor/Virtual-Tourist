@@ -89,7 +89,7 @@ struct Constants {
         static let PicsPerPage = "21"
 
         //Page
-        static let NumOfPages = "10"
+        static let NumOfPages = "2"
         
         //GalleyID
         static let GalleryID = "5704-72157622566655097"

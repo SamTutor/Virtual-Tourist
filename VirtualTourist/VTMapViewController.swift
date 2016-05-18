@@ -161,27 +161,67 @@ class VTMapViewController: UIViewController, MKMapViewDelegate, UIGestureRecogni
     
     }//END OF FUNC: mapView regionDidChangeAnimated
     
+    
+    func pinStored(annotation: MKAnnotation) -> Pin? {
+        
+        var correctPin: Pin?
+        
+        let pinstored = loadPins()
+        
+        for pin in pinstored! {
+            
+            let pLat = pin.valueForKey("latitude")as! Double
+            let pLong = pin.valueForKey("longitude") as! Double
+            
+            
+            if (pLat == annotation.coordinate.latitude && pLong == annotation.coordinate.longitude)
+                {
+                    correctPin = pin
+                    break
+                }
+            
+        }
+        
+        return correctPin
+        
+    }//END OF FUNC: pinStored
+        
+    
     // Tells the delegate that one of its annotation views was selected.
     func mapView(mapView: MKMapView, didSelectAnnotationView view: MKAnnotationView) {
     
+        let selpinview = view.annotation
         if (self.mapMode == "Add") {
-                let selpin = view.annotation as! Pin
             
+print("view alat", selpinview!.coordinate.latitude)
+print("view along", selpinview!.coordinate.longitude)
+            
+            if let selpin = pinStored(selpinview!) {
+print ("Correct Add")
+            
+        
                 // Go to VTDetailsViewController
                 let controller = storyboard!.instantiateViewControllerWithIdentifier("VTDetailsViewController") as! VTDetailsViewController
-    
+                
+                controller.selpin = selpin
+                
                 mapView.deselectAnnotation(selpin, animated: true)
 
                 self.navigationController?.pushViewController(controller, animated: true)
+            }
             
-            } else {
-                let delpin = view.annotation as! Pin
+        } else {
+print("view dlat", selpinview!.coordinate.latitude)
+print("view dlong", selpinview!.coordinate.longitude)
+            if let selpin = pinStored(selpinview!) {
+print ("Correct Delete")
             
-                sharedContext.deleteObject(delpin)
-                mapView.removeAnnotation(delpin)
+                sharedContext.deleteObject(selpin)
+                mapView.removeAnnotation(selpin)
             
                 performOnMain {
                     CoreDataStackManager.sharedInstance().saveContext()
+                }
             }
         }
         

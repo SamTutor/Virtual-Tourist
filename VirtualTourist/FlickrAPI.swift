@@ -17,11 +17,17 @@ class FlickrAPI: NSObject {
     //create the session
     var session = NSURLSession.sharedSession()
     
+    // MARK: Initializers
+    override init() {
+        super.init()
+    }
+    
     // MARK: GET Photos
-    func taskForGETMethod(method: [String : AnyObject], completionHandlerForGET: (success: Bool, result: AnyObject!, errorString: String?) -> Void) -> NSURLSessionDataTask{
+    func taskForGETMethod(method:[String:AnyObject], completionHandlerForGET: (success: Bool, result: AnyObject!, errorString: String?) -> Void) -> NSURLSessionDataTask{
         
         //create the request
         let request = NSURLRequest(URL: flickrURLFromParameters(method))
+print("REQUEST", request)
         
         /* 4. Make the request */
         let task = session.dataTaskWithRequest(request) { (data, response, error) in
@@ -66,27 +72,7 @@ class FlickrAPI: NSObject {
         do {
             parsedResult = try NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments)
         } catch {
-            parsedResult = nil
             completionHandlerForConvertData(success: false, result: nil, errorString: "Could not parse the data as JSON: '\(data)'")
-            return
-        }
-        
-        /* GUARD: Did Flickr return an error (stat != ok)? */
-        guard let stat = parsedResult[Constants.FlickrResponseKeys.Status] as? String where stat == Constants.FlickrResponseValues.OKStatus else {
-            completionHandlerForConvertData(success: false, result: nil, errorString: "Flickr API returned an error. See error code and message in \(parsedResult)")
-            return
-        }
-        
-        /* GUARD: Is "photos" key in our result? */
-        guard let photosDictionary = parsedResult[Constants.FlickrResponseKeys.Photos] as? [String:AnyObject] else {
-            completionHandlerForConvertData(success: false, result: nil, errorString: "Cannot find keys '\(Constants.FlickrResponseKeys.Photos)' in \(parsedResult)")
-            return
-        }
-        
-        /* GUARD: Is "pages" key in the photosDictionary? */
-        guard let totalPages = photosDictionary[Constants.FlickrResponseKeys.Pages] as? Int else {
-            completionHandlerForConvertData(success: false, result: nil, errorString: "Cannot find key '\(Constants.FlickrResponseKeys.Pages)' in \(photosDictionary)")
-            return
         }
         
         completionHandlerForConvertData(success: true, result: parsedResult, errorString: nil)
@@ -108,24 +94,54 @@ class FlickrAPI: NSObject {
             let queryItem = NSURLQueryItem(name: key, value: "\(value)")
             components.queryItems!.append(queryItem)
         }
-        print(components.URL!)
+print("components", components.URL!)
         return components.URL!
+        
+    }//END OF FUNC: flickrURLFromParameters
+
+    // Shared Instance
+    class func sharedInstance() -> FlickrAPI {
+        struct Singleton {
+            static var sharedInstance = FlickrAPI ()
+        }
+    
+        return Singleton.sharedInstance
+    
+    }//END OF FUNC: sharedInstance
+
+    
+    //This function returns a task to download photo data given the photo's Flickr URL
+    func taskForPhoto (photoURL: String, completionHandler: (imageData: NSData?, error: NSError?) ->  Void) -> NSURLSessionTask {
+        
+        let url = NSURL(string: photoURL)
+        let request = NSURLRequest(URL: url!)
+        
+        let task = session.dataTaskWithRequest(request) { (data, response, error) -> Void in
+            
+            if let _ = error {
+                completionHandler(imageData: nil, error: NSError(domain: "taskForPhoto", code: 0, userInfo: [NSLocalizedDescriptionKey : "error with photo download request"]))
+            } else {
+                completionHandler(imageData: data, error: nil)
+            }
+            
+            
+        }
+        
+        task.resume()
+        
+        return task
+        
     }
 
-// Shared Instance
-class func sharedInstance() -> FlickrAPI {
-    struct Singleton {
-        static var sharedInstance = FlickrAPI ()
-    }
-    return Singleton.sharedInstance
-}//END OF FUNC: sharedInstance
-
+    
+    
+    
     // MARK: - Shared Image Cache
     
     struct Caches {
+    
         static let imageCache = ImageCache()
+    
     }//End OF STRUCT: Caches
     
-    
-
 }//END OF CLASS: FlickrAPI

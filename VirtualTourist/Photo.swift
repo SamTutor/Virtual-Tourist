@@ -14,20 +14,10 @@ class Photo: NSManagedObject {
     
     // MARK: Propertes
     
-    @NSManaged var photoName: String?
-    @NSManaged var photoPath: String?
-    @NSManaged var pin: Pin?
+    @NSManaged var photoName: String
+    @NSManaged var photoPath: String
+    @NSManaged var pin: Pin
 
-    
-    
-    // MARK: Types
-    
-    struct PhotoKey {
-        static let PhotoName = "name"
-        static let PhotoPath = "photopath"
-    }
-    
-    
     
     // MARK: CoreData
     
@@ -38,24 +28,8 @@ class Photo: NSManagedObject {
     }//END OF INIT
     
     
-    
-    // MARK: Init
-    
-    // Init from dictionary
-    init(dictionary: [String : AnyObject], context: NSManagedObjectContext) {
-        
-        // Core Data
-        let entity =  NSEntityDescription.entityForName("Photo", inManagedObjectContext: context)!
-        super.init(entity: entity,insertIntoManagedObjectContext: context)
-        
-        // Dictionary
-        photoName = dictionary[PhotoKey.PhotoName] as? String
-        photoPath = dictionary[PhotoKey.PhotoName] as? String
-        
-    }//END OF INIT
-    
     // Init photo
-    init?(photoName: String, photoPath: String, context: NSManagedObjectContext) {
+    init(pin: Pin, photoName: String, photoPath: String, context: NSManagedObjectContext) {
         
         // Core Data
         let entity =  NSEntityDescription.entityForName("Photo", inManagedObjectContext: context)!
@@ -63,27 +37,23 @@ class Photo: NSManagedObject {
         
         // Initialize stored properties
         self.photoName = photoName
+        self.pin = pin
         self.photoPath =  photoPath
         
     }//END OF INIT
     
     
-    
     // MARK: Image
 
-    var imageURL: UIImage? {
+    var photoImage:UIImage? {
         
         // Getting and setting filename as URL's last component
         get {
-            let url = NSURL(fileURLWithPath: photoPath!)
-            let fileName = url.lastPathComponent
-            return FlickrAPI.Caches.imageCache.imageWithIdentifier(fileName!)
+            return FlickrAPI.Caches.imageCache.imageWithIdentifier(photoName)
         }
         
         set {
-            let url = NSURL(fileURLWithPath: self.photoPath!)
-            let fileName = url.lastPathComponent
-            FlickrAPI.Caches.imageCache.storeImage(newValue, withIdentifier: fileName!)
+            FlickrAPI.Caches.imageCache.storeImage(newValue, withIdentifier: photoPath)
         }
     }//END OF VAR: imageURL
 
