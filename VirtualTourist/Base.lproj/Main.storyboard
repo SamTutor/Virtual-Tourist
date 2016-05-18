@@ -82,42 +82,87 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="k1e-1g-EaV">
-                                <rect key="frame" x="0.0" y="0.0" width="600" height="203"/>
+                            <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="k1e-1g-EaV">
+                                <rect key="frame" x="0.0" y="64" width="600" height="137"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="137" id="SZz-wd-UPD"/>
+                                </constraints>
                             </mapView>
-                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="l4P-mz-DOI">
+                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="l4P-mz-DOI">
                                 <rect key="frame" x="0.0" y="201" width="600" height="399"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="Z8s-NL-lsJ">
-                                    <size key="itemSize" width="147" height="156"/>
+                                    <size key="itemSize" width="103" height="103"/>
                                     <size key="headerReferenceSize" width="0.0" height="0.0"/>
                                     <size key="footerReferenceSize" width="0.0" height="0.0"/>
                                     <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 </collectionViewFlowLayout>
                                 <cells>
                                     <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleAspectFill" reuseIdentifier="PhotoViewCell" id="wh4-UA-vOb" customClass="PhotoViewCell" customModule="VirtualTourist" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="0.0" width="147" height="156"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="103" height="103"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
-                                            <rect key="frame" x="0.0" y="0.0" width="147" height="156"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="103" height="103"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="jHh-lM-Twl">
-                                                    <rect key="frame" x="8" y="8" width="131" height="140"/>
+                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="jHh-lM-Twl">
+                                                    <rect key="frame" x="0.0" y="0.0" width="103" height="103"/>
                                                 </imageView>
+                                                <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" placeholderIntrinsicWidth="50" placeholderIntrinsicHeight="50" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="GCC-3M-iaB">
+                                                    <rect key="frame" x="27" y="27" width="50" height="50"/>
+                                                </activityIndicatorView>
                                             </subviews>
                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                         </view>
+                                        <constraints>
+                                            <constraint firstAttribute="trailing" secondItem="jHh-lM-Twl" secondAttribute="trailing" id="BVy-qC-8Fa"/>
+                                            <constraint firstAttribute="bottom" secondItem="jHh-lM-Twl" secondAttribute="bottom" id="R0g-HH-WLc"/>
+                                            <constraint firstItem="jHh-lM-Twl" firstAttribute="centerY" secondItem="GCC-3M-iaB" secondAttribute="centerY" id="RPU-7S-5OT"/>
+                                            <constraint firstItem="jHh-lM-Twl" firstAttribute="top" secondItem="wh4-UA-vOb" secondAttribute="top" id="c46-Vo-nUa"/>
+                                            <constraint firstItem="jHh-lM-Twl" firstAttribute="leading" secondItem="wh4-UA-vOb" secondAttribute="leading" id="clt-2s-wZv"/>
+                                            <constraint firstItem="jHh-lM-Twl" firstAttribute="centerX" secondItem="GCC-3M-iaB" secondAttribute="centerX" id="lsn-lD-TBz"/>
+                                        </constraints>
                                         <connections>
-                                            <outlet property="photoImage" destination="jHh-lM-Twl" id="bGE-NG-TiW"/>
+                                            <outlet property="photoCell" destination="jHh-lM-Twl" id="b8D-a3-Qqk"/>
+                                            <outlet property="photoLoading" destination="GCC-3M-iaB" id="ptL-mS-Kes"/>
                                         </connections>
                                     </collectionViewCell>
                                 </cells>
+                                <connections>
+                                    <outlet property="dataSource" destination="Ccm-tW-6bk" id="55l-ga-3Np"/>
+                                    <outlet property="delegate" destination="Ccm-tW-6bk" id="Mhe-qf-Vds"/>
+                                </connections>
                             </collectionView>
+                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="eRS-DH-SBj">
+                                <rect key="frame" x="0.0" y="556" width="600" height="44"/>
+                                <items>
+                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="9sh-VN-wKl"/>
+                                    <barButtonItem title="New Collection" id="20k-Pl-h6F">
+                                        <connections>
+                                            <action selector="collButton:" destination="Ccm-tW-6bk" id="Eji-Lw-XAu"/>
+                                        </connections>
+                                    </barButtonItem>
+                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="uC5-QN-Q2y"/>
+                                </items>
+                            </toolbar>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="l4P-mz-DOI" firstAttribute="leading" secondItem="eRS-DH-SBj" secondAttribute="leading" id="0D5-Wt-F6f"/>
+                            <constraint firstItem="k1e-1g-EaV" firstAttribute="top" secondItem="NeW-tf-jLg" secondAttribute="bottom" id="4E4-rI-YFX"/>
+                            <constraint firstItem="l4P-mz-DOI" firstAttribute="top" secondItem="k1e-1g-EaV" secondAttribute="bottom" id="82R-eG-aLw"/>
+                            <constraint firstItem="eRS-DH-SBj" firstAttribute="bottom" secondItem="qDW-W3-7AV" secondAttribute="top" id="LtN-mS-Gg2"/>
+                            <constraint firstItem="l4P-mz-DOI" firstAttribute="bottom" secondItem="qDW-W3-7AV" secondAttribute="top" id="RmK-vp-IfS"/>
+                            <constraint firstItem="k1e-1g-EaV" firstAttribute="leading" secondItem="8b5-1a-E7k" secondAttribute="leading" id="Ysd-BJ-Kru"/>
+                            <constraint firstItem="l4P-mz-DOI" firstAttribute="trailing" secondItem="eRS-DH-SBj" secondAttribute="trailing" id="fta-Rg-W76"/>
+                            <constraint firstItem="k1e-1g-EaV" firstAttribute="leading" secondItem="l4P-mz-DOI" secondAttribute="leading" id="hFr-ah-uOI"/>
+                            <constraint firstItem="k1e-1g-EaV" firstAttribute="trailing" secondItem="eRS-DH-SBj" secondAttribute="trailing" id="nxQ-es-jAj"/>
+                            <constraint firstAttribute="trailing" secondItem="k1e-1g-EaV" secondAttribute="trailing" id="uf6-iv-L35"/>
+                        </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Details" id="ub1-Tw-l45"/>
                     <connections>
+                        <outlet property="collMessage" destination="20k-Pl-h6F" id="Zba-kb-u8j"/>
+                        <outlet property="collectionView" destination="l4P-mz-DOI" id="avP-57-19a"/>
                         <outlet property="pinMapView" destination="k1e-1g-EaV" id="A4f-el-CX5"/>
                     </connections>
                 </viewController>

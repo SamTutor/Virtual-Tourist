@@ -139,7 +139,7 @@ extension FlickrAPI {
             performOnMain {
                 photo.photoImage = UIImage(data: data)
             }
-            print (photo.photoImage)
+            //DEBUG: print (photo.photoImage)
             completionHandlerDisplay(success: true, errorString: nil)
         }
         
@@ -180,7 +180,7 @@ extension FlickrAPI {
             let max_long = min(longitude + Constants.FlickrSearchParameters.SearchWidth, Constants.FlickrSearchParameters.SearchLonRange.1)
             let min_long = max(longitude - Constants.FlickrSearchParameters.SearchWidth, Constants.FlickrSearchParameters.SearchLonRange.0)
         
-print("BoundingBox", "\(min_long),\(min_lat),\(max_long),\(max_lat)")
+        //print("BoundingBox", "\(min_long),\(min_lat),\(max_long),\(max_lat)")
         return "\(min_long),\(min_lat),\(max_long),\(max_lat)"
         
     }//END OF FUNC: bboxString

@@ -27,7 +27,7 @@ class FlickrAPI: NSObject {
         
         //create the request
         let request = NSURLRequest(URL: flickrURLFromParameters(method))
-print("REQUEST", request)
+        //DEBUG: print("REQUEST", request)
         
         /* 4. Make the request */
         let task = session.dataTaskWithRequest(request) { (data, response, error) in
@@ -94,7 +94,7 @@ print("REQUEST", request)
             let queryItem = NSURLQueryItem(name: key, value: "\(value)")
             components.queryItems!.append(queryItem)
         }
-print("components", components.URL!)
+        //DEBUG: print("components", components.URL!)
         return components.URL!
         
     }//END OF FUNC: flickrURLFromParameters

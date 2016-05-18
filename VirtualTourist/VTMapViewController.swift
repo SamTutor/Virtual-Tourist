@@ -193,12 +193,7 @@ class VTMapViewController: UIViewController, MKMapViewDelegate, UIGestureRecogni
         let selpinview = view.annotation
         if (self.mapMode == "Add") {
             
-print("view alat", selpinview!.coordinate.latitude)
-print("view along", selpinview!.coordinate.longitude)
-            
             if let selpin = pinStored(selpinview!) {
-print ("Correct Add")
-            
         
                 // Go to VTDetailsViewController
                 let controller = storyboard!.instantiateViewControllerWithIdentifier("VTDetailsViewController") as! VTDetailsViewController
@@ -211,10 +206,8 @@ print ("Correct Add")
             }
             
         } else {
-print("view dlat", selpinview!.coordinate.latitude)
-print("view dlong", selpinview!.coordinate.longitude)
+
             if let selpin = pinStored(selpinview!) {
-print ("Correct Delete")
             
                 sharedContext.deleteObject(selpin)
                 mapView.removeAnnotation(selpin)
