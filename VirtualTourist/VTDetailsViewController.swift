@@ -29,12 +29,17 @@ class VTDetailsViewController: UIViewController, UICollectionViewDataSource, UIC
     var selpin: Pin!
     var selectedPhotos = [Photo]()
     
-    
+    var insertedIndexPaths: [NSIndexPath]!
+    var deletedIndexPaths: [NSIndexPath]!
+    var updatedIndexPaths: [NSIndexPath]!
+
     
     // MARK: View Loading
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+
         
         // Load the Photos
         
@@ -59,8 +64,10 @@ class VTDetailsViewController: UIViewController, UICollectionViewDataSource, UIC
         
         // If No Photos Saved then
         if selpin.photos.isEmpty {
-            newCollectionOfPhotos()
+            newCollectionPhotos()
         }
+
+
         
     }//END OF FUNC: viewWillAppear
 
@@ -68,19 +75,21 @@ class VTDetailsViewController: UIViewController, UICollectionViewDataSource, UIC
     
     // MARK: API
     
-    func newCollectionOfPhotos() {
+    func newCollectionPhotos() {
+        
         FlickrAPI.sharedInstance().getPhotos(selpin) { (success, results, errorString) in
-    
-/* If for some reason the photo locations cannot be downloaded, state why in error message */
-if success == false {
-performOnMain {
-//   self.errorMessage.text = errorString
-//    self.errorMessage.hidden = false
-}
-}
+            
+            if success == false {
+                performOnMain {
+                    self.collMessage.title = "Cannot FIND Photos"
+                }
+            }
         }
-    }//END OF FUNC: newCollectionOfPhotos
+        
+    }//END OF FUNC: newCollectionPhotos
 
+    
+    
     // MARK: MAP
     
     func pinMap() {
@@ -130,16 +139,17 @@ performOnMain {
     lazy var loadPhotos: NSFetchedResultsController = {
         
         let fetchRequest = NSFetchRequest(entityName: "Photo")
-fetchRequest.sortDescriptors = []
-        
-        fetchRequest.predicate = NSPredicate(format: "pin == %@", self.selpin);
+            fetchRequest.sortDescriptors = []
+            fetchRequest.predicate = NSPredicate(format: "pin == %@", self.selpin);
         
         let loadPhotos = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.sharedContext, sectionNameKeyPath: nil, cacheName: nil)
         
         return loadPhotos
         
-    }()
+    }()//END OF VAR: load Photos
 
+    
+    
     
     
     // MARK: Collection Layout
@@ -228,8 +238,9 @@ fetchRequest.sortDescriptors = []
     // MARK: Configure Cell
     
     func cellSettings(cell: PhotoViewCell, photo: Photo) {
-        cell.backgroundColor = UIColor.blackColor()
+        cell.backgroundColor = UIColor.orangeColor()
         
+        //DEBUG: print (photo.photoImage)
         if photo.photoImage == nil {
             
             //Load new Photos for the Pin
@@ -240,7 +251,7 @@ fetchRequest.sortDescriptors = []
             FlickrAPI.sharedInstance().displayPhoto(photo) { (success, errorString) in
                 if success {
                     performOnMain {
-                        cell.photoCell.image = photo.photoImage
+                        cell.photoCell?.image = photo.photoImage
                         cell.photoLoading.stopAnimating()
                     }
                 } else {
@@ -257,33 +268,93 @@ fetchRequest.sortDescriptors = []
             // Load Stored Photos for the Pin
             
             performOnMain {
-                cell.photoCell.image = photo.photoImage
+                cell.photoCell?.image = photo.photoImage
             }
         }
         
-/* Toggle the transparency of the cell depending on whether the photo appears in the selecterPhotos array */
-//if let _ = selectedPhotos.indexOf(photo) {
-//cell.alpha = 0.25
-//} else {
-//cell.alpha = 1.0
-//}
+        // HighLight Selected Photos
+        if let _ = selectedPhotos.indexOf(photo) {
+            cell.alpha = 0.10
+        } else {
+            cell.alpha = 1.0
+        }
         
     }//END OF FUNC: cellSettings
 
     @IBAction func collButton(sender: UIBarButtonItem) {
-        print("Pressed")
-        if (selectedPhotos.isEmpty) {
+        //DEBUG: print("Pressed")
+        //DEBUG: print(selectedPhotos.count)
+        if (selectedPhotos.count == 0) {
             selpin.deleteAllPhotos()
-            newCollectionOfPhotos()
-            collMessage.title = "Load New Photos"
+            newCollectionPhotos()
+            collMessage.title = "Loading New Photos...Select Photos to Delete"
         } else {
             selpin.deleteSelectedPhotos(selectedPhotos)
             selectedPhotos = [Photo]()
-            collMessage.title = "Remove Selected Photos"
+            collMessage.title = "Updating Photos...Select Photos to Delete"
         }
         
         
     }
+    
+    
+    
+    // MARK: - Fetched Results Controller Delegate
+    
+    func controllerWillChangeContent(controller: NSFetchedResultsController) {
+        
+        insertedIndexPaths = [NSIndexPath]()
+        deletedIndexPaths = [NSIndexPath]()
+        updatedIndexPaths = [NSIndexPath]()
+        
+        //DEBUG: print("in controllerWillChangeContent")
+        
+    }//END OF FUNC: controllerWillChangeContent
+    
+    func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
+        
+        switch type{
+            
+        case .Insert:
+            //DEBUG: print("Insert an item")
+            insertedIndexPaths.append(newIndexPath!)
+            break
+        case .Delete:
+            //DEBUG: print("Delete an item")
+            deletedIndexPaths.append(indexPath!)
+            break
+        case .Update:
+            //DEBUG: print("Update an item.")
+            updatedIndexPaths.append(indexPath!)
+            break
+        case .Move:
+            break
+        }
+        
+    }//END OF FUNC: controller
+    
+    func controllerDidChangeContent(controller: NSFetchedResultsController) {
+        
+        //DEBUG: print("in controllerDidChangeContent. changes.count: \(insertedIndexPaths.count + deletedIndexPaths.count)")
+        
+        collectionView.performBatchUpdates({() -> Void in
+            
+            for indexPath in self.insertedIndexPaths {
+                self.collectionView.insertItemsAtIndexPaths([indexPath])
+            }
+            
+            for indexPath in self.deletedIndexPaths {
+                self.collectionView.deleteItemsAtIndexPaths([indexPath])
+            }
+            
+            for indexPath in self.updatedIndexPaths {
+                self.collectionView.reloadItemsAtIndexPaths([indexPath])
+            }
+            
+            }, completion: nil)
+        
+    }//END OF FUNC: controllerDidChangeContent
+
     
 
 }//END OF FUNC: VTDetailsViewController

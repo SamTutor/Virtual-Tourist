@@ -194,11 +194,15 @@ class VTMapViewController: UIViewController, MKMapViewDelegate, UIGestureRecogni
         if (self.mapMode == "Add") {
             
             if let selpin = pinStored(selpinview!) {
-        
+                //DEBUG: print("ADD PIN")
                 // Go to VTDetailsViewController
                 let controller = storyboard!.instantiateViewControllerWithIdentifier("VTDetailsViewController") as! VTDetailsViewController
-                
+
                 controller.selpin = selpin
+                
+                let backButton = UIBarButtonItem()
+                backButton.title = "OK"
+                navigationItem.backBarButtonItem = backButton
                 
                 mapView.deselectAnnotation(selpin, animated: true)
 
@@ -208,7 +212,7 @@ class VTMapViewController: UIViewController, MKMapViewDelegate, UIGestureRecogni
         } else {
 
             if let selpin = pinStored(selpinview!) {
-            
+                //DEBUG: print("DELETE PIN")
                 sharedContext.deleteObject(selpin)
                 mapView.removeAnnotation(selpin)
             
@@ -235,6 +239,8 @@ class VTMapViewController: UIViewController, MKMapViewDelegate, UIGestureRecogni
                 performOnMain {
                 let pin = Pin(lat: pinCoord.latitude, long: pinCoord.longitude, context: self.sharedContext)
                     self.mapView.addAnnotation(pin)
+                    self.findPhotos(pin)
+                    
                     CoreDataStackManager.sharedInstance().saveContext()
                 }
             }
@@ -242,6 +248,25 @@ class VTMapViewController: UIViewController, MKMapViewDelegate, UIGestureRecogni
         
     }//END OF FUNC: addPins
 
+    
+    
+    
+    // MARK: API
+    
+    func findPhotos(pin: Pin) {
+        FlickrAPI.sharedInstance().getPhotos(pin) { (success, results, errorString) in
+            
+            if success == false {
+                performOnMain {
+                    print("Error can't find find Photos via Flickr")
+                }
+            }
+        }
+        
+    }//END OF FUNC: findPhotos
+
+    
+    
     @IBAction func delPins(sender: UIBarButtonItem) {
     
         if (mapNavigationBar.rightBarButtonItem?.image == UIImage(named: "Delete")) {
